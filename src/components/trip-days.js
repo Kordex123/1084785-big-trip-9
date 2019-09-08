@@ -1,4 +1,7 @@
 import {getEditEvent} from "./event-edit";
+import {EventIcons} from "./event-data";
+import {Events} from "./event-data";
+import {Activities} from "./event-data";
 
 const getEvent = (event) => {
   return `
@@ -8,11 +11,11 @@ const getEvent = (event) => {
           class="event__type-icon" 
           width="42" 
           height="42" 
-          src="img/icons/${event.type.image}" 
+          src="img/icons/${EventIcons[Events[event.type]]}" 
           alt="Event type icon">
       </div>
       <h3 class="event__title">
-            ${event.type.isActivity ? `${event.type.name} in ${event.destination.name}` : `${event.type.name} to ${event.destination.name}`}
+           ${Events[event.type]} ${Activities[event.type] ? ` in ${event.destination.name}` : ` to ${event.destination.name}`}
       </h3>
 
       <div class="event__schedule">

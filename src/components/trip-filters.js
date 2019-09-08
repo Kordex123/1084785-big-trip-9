@@ -1,9 +1,9 @@
-import {tripFiltersTimeline} from "./trip-filters-data";
+import {timelineFilters} from "./trip-filters-data";
 
 export const getTripFilters = () => {
   return `
     <form class="trip-filters" action="#" method="get">
-        ${tripFiltersTimeline.map(getTripFilter).join(``)}
+        ${Object.values(timelineFilters).map(getTripFilter).join(``)}
         <button class="visually-hidden" type="submit">Accept filter</button>
     </form>
   `;
@@ -13,16 +13,16 @@ const getTripFilter = (timeline) => {
   return `
   <div class="trip-filters__filter">
       <input 
-          id="filter-${timeline.title.toLowerCase()}" 
+          id="filter-${timeline.toLowerCase()}" 
           class="trip-filters__filter-input  visually-hidden" 
           type="radio" 
           name="trip-filter" 
-          value="${timeline.title.toLowerCase()}" 
+          value="${timeline.toLowerCase()}" 
           checked="">
       <label 
           class="trip-filters__filter-label" 
-          for="filter-${timeline.title.toLowerCase()}">
-          ${timeline.title}
+          for="filter-${timeline.toLowerCase()}">
+          ${timeline}
       </label>
   </div>
   `;

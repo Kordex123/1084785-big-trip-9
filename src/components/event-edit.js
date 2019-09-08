@@ -1,5 +1,8 @@
-import {EVENT_TYPES} from "./event-data";
-import {DESTINATIONS} from "./event-data";
+import {Events} from "./event-data";
+import {Transfers} from "./event-data";
+import {Activities} from "./event-data";
+import {Destinations} from "./event-data";
+import {EventIcons} from "./event-data";
 
 export const getEditEvent = (event) => {
   return `
@@ -8,30 +11,30 @@ export const getEditEvent = (event) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${event.type.image}" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${EventIcons[Events[event.type]]}" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
-              ${EVENT_TYPES.filter((type) => !type.isActivity).map(getEventType).join(``)}
+              ${Object.values(Transfers).map(getEventType).join(``)}
             </fieldset>
 
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Activity</legend>
-              ${EVENT_TYPES.filter((type) => type.isActivity).map(getEventType).join(``)}              
+              ${Object.values(Activities).map(getEventType).join(``)}              
             </fieldset>
           </div>
         </div>
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${event.type.isActivity ? `${event.type.name} in ` : `${event.type.name} to`}
+            ${Events[event.type]} ${Activities[event.type] ? ` in ` : ` to `}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${event.destination.name}" list="destination-list-1">
           <datalist id="destination-list-1">
-            ${DESTINATIONS.map((name) => `<option value="${name}"></option>`).join(``)}
+            ${Destinations.map((name) => `<option value="${name}"></option>`).join(``)}
           </datalist>
         </div>
 
@@ -90,7 +93,7 @@ export const getEditEvent = (event) => {
           </p>
           <div class="event__photos-container">
             <div class="event__photos-tape">
-              ${event.destination.photos.map((photo) =>`<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+              ${event.destination.pictures.map((picture) =>`<img class="event__photo" src="${picture}" alt="Event photo">`).join(``)}
             </div>
           </div>
         </section>
@@ -103,15 +106,15 @@ const getEventType = (event) => {
   return `
     <div class="event__type-item">
       <input 
-          id="event-type-${event.name.toLowerCase()}-1" 
+          id="event-type-${event.toLowerCase()}-1" 
           class="event__type-input  visually-hidden" 
           type="radio" 
           name="event-type" 
-          value="${event.name.toLowerCase()}">
+          value="${event.toLowerCase()}">
       <label 
-          class="event__type-label  event__type-label--${event.name.toLowerCase()}" 
-          for="event-type-${event.name.toLowerCase()}-1">
-          ${event.name}
+          class="event__type-label  event__type-label--${event.toLowerCase()}" 
+          for="event-type-${event.toLowerCase()}-1">
+          ${event}
       </label>
     </div>
   `;

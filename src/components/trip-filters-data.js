@@ -1,5 +1,5 @@
-export const tripFiltersTimeline = [
-  {title: `Everything`},
-  {title: `Future`},
-  {title: `Past`}
-];
+export const timelineFilters = {
+  EVERYTHING: `Everything`,
+  FUTURE: `Future`,
+  PAST: `Past`
+};
