@@ -6,3 +6,5 @@ export const getTripInfo = () => {
     </div>
  `;
 };
+
+
