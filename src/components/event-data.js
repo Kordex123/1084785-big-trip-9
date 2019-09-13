@@ -103,10 +103,11 @@ export const Offer = [
   {id: `train`, title: `Travel by train`, price: getRandomNumber(3, 6) * 5}
 ];
 
-const getEventData = ({previousDate, editMode = false}) => {
+const getEventData = ({previousDate, editMode = false, id}) => {
   const startDate = getRandomDate(previousDate, true);
   const endDate = getRandomDate(startDate);
   return {
+    id,
     startDate,
     endDate,
     editMode,
@@ -118,11 +119,11 @@ const getEventData = ({previousDate, editMode = false}) => {
   };
 };
 
-export const getEvents = () => Array(4).fill(``).reduce((elements, event, idx) => {
+export const getEvents = () => Array(17).fill(``).reduce((elements, event, idx) => {
   if (idx === 0) {
-    elements.push(getEventData({editMode: true}));
+    elements.push(getEventData({editMode: true, id: idx}));
   } else {
-    elements.push(getEventData({previousDate: elements[idx - 1].endDate}));
+    elements.push(getEventData({previousDate: elements[idx - 1].endDate, id: idx}));
   }
   return elements;
 }, []);

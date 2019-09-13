@@ -1,0 +1,94 @@
+import {EventIcons} from "./event-data";
+import {Events} from "./event-data";
+import {Activities} from "./event-data";
+import {createElement} from "./utils/render-utils";
+
+
+export class Point {
+  constructor({startDate, endDate, type, destination, price, additionalOptions}) {
+    this._startDate = startDate;
+    this._endDate = endDate;
+    this._type = type;
+    this._destination = destination;
+    this._price = price;
+    this._additionalOptions = additionalOptions;
+    this._element = null;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return `
+    <div class="event">
+      <div class="event__type">
+        <img 
+          class="event__type-icon" 
+          width="42" 
+          height="42" 
+          src="img/icons/${EventIcons[Events[this._type]]}" 
+          alt="Event type icon">
+      </div>
+      <h3 class="event__title">
+           ${Events[this._type]} ${Activities[this._type] ? ` in ${this._destination.name}` : ` to ${this._destination.name}`}
+      </h3>
+
+      <div class="event__schedule">
+        <p class="event__time">
+          <time 
+            class="event__start-time" 
+            datetime="${this._startDate}">
+            ${this._startDate.getHours()}:${this._startDate.getMinutes()}
+          </time>
+          —
+          <time 
+            class="event__end-time" 
+            datetime="${this._endDate}">
+            ${this._endDate.getHours()}:${this._endDate.getMinutes()}
+          </time>
+        </p>
+        <p 
+          class="event__duration">
+          1H 30M
+        </p>
+      </div>
+
+      <p class="event__price">
+        €&nbsp;
+        <span 
+          class="event__price-value">
+          ${this._price}
+        </span>
+      </p>
+
+      <h4 class="visually-hidden">Offers:</h4>
+      <ul class="event__selected-offers">
+      ${this._additionalOptions.map(({title, price}) =>`
+        <li class="event__offer">
+        <span
+        class="event__offer-title">
+          ${title}
+        </span>
+        +
+        €&nbsp;
+        <span
+        class="event__offer-price">
+          ${price}
+        </span>
+        </li>
+  `).join(``)}
+      </ul>
+
+      <button class="event__rollup-btn" type="button">
+      </button>
+    </div>`;
+  }
+}
