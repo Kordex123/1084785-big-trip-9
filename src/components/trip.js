@@ -1,8 +1,9 @@
+import {AbstractComponent} from "./abstract-component";
 import {getDayAndMonth, getDayMillis, getDayToCounter, isSameDay} from "./utils/date-utils";
-import {createElement} from "./utils/render-utils";
 
-export class Trip {
+export class Trip extends AbstractComponent {
   constructor(points) {
+    super();
     this._points = points;
     this._element = null;
     this._dayToCounter = getDayToCounter(this._points);
@@ -37,21 +38,10 @@ export class Trip {
     };
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
-
   getTemplate() {
     return `
       <ul class="trip-days">
-        ${this._groupedEvents.map((eventGroup) =>`<li class="trip-days__item  day">
+        ${this._groupedEvents.map((eventGroup) => `<li class="trip-days__item  day">
             <div class="day__info">
               <span class="day__counter">${this._dayToCounter[getDayMillis(eventGroup[0]._startDate)] + 1}</span>
               <time 
@@ -61,11 +51,11 @@ export class Trip {
               </time>
             </div>
             <ul class="trip-events__list">
-              ${eventGroup.map(() =>`
+              ${eventGroup.map(() => `
                 <li class="trip-events__item"></li>
               `).join(``)}
             </ul>
-          </li>
+        </li>
         `).join(``)}
       </ul>
     `;
