@@ -1,12 +1,9 @@
-import {Events} from "./event-data";
-import {Transfers} from "./event-data";
-import {Activities} from "./event-data";
-import {Destinations} from "./event-data";
-import {EventIcons} from "./event-data";
-import {createElement} from "./utils/render-utils";
+import {Activities, Destinations, EventIcons, Events, Transfers} from "./event-data";
+import {AbstractComponent} from "./abstract-component";
 
-export class EditPoint {
+export class EditPoint extends AbstractComponent {
   constructor({startDate, endDate, type, destination, price, additionalOptions, sentences}) {
+    super();
     this._description = sentences;
     this._startDate = startDate;
     this._endDate = endDate;
@@ -14,17 +11,6 @@ export class EditPoint {
     this._destination = destination;
     this._price = price;
     this._additionalOptions = additionalOptions;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
     this._element = null;
   }
 

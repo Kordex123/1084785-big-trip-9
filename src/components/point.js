@@ -1,28 +1,15 @@
-import {EventIcons} from "./event-data";
-import {Events} from "./event-data";
-import {Activities} from "./event-data";
-import {createElement} from "./utils/render-utils";
+import {Activities, EventIcons, Events} from "./event-data";
+import {AbstractComponent} from "./abstract-component";
 
-
-export class Point {
+export class Point extends AbstractComponent {
   constructor({startDate, endDate, type, destination, price, additionalOptions}) {
+    super();
     this._startDate = startDate;
     this._endDate = endDate;
     this._type = type;
     this._destination = destination;
     this._price = price;
     this._additionalOptions = additionalOptions;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
     this._element = null;
   }
 
