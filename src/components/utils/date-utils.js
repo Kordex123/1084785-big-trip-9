@@ -17,6 +17,10 @@ export const getDayToCounter = (events) => {
   }, {});
 };
 
+export const getDuration = (endDate, startDate) => {
+  return (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60);
+};
+
 const SHORT_MONTHS = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 
 export const getDayAndMonth = (date) => {
