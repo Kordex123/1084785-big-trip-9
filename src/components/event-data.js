@@ -30,9 +30,7 @@ const getRandomDate = (minDate, canBeNextDay) => {
     date.setHours(getRandomNumber(minHour, maxHour));
     date.setMinutes(getRandomNumber(0, 3) * 15);
   } else {
-    const maxDate = date;
-    maxDate.setHours(maxDate.getHours() + maxDurationInHours);
-    date.setTime(getRandomNumber(date.getTime(), maxDate.getTime()));
+    date.setMinutes(date.getMinutes() + getRandomNumber(1, 4 * maxDurationInHours) * 15);
   }
   return date;
 };

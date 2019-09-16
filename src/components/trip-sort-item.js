@@ -1,18 +1,10 @@
-import {createElement} from "./utils/render-utils";
+import {AbstractComponent} from "./abstract-component";
 
-export class TripSortItem {
+export class TripSortItem extends AbstractComponent {
   constructor({type, hasIcon}) {
+    super();
     this._type = type;
     this._hasIcon = hasIcon;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
   }
 
   getTemplate() {

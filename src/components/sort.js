@@ -1,20 +1,8 @@
 import {sortChoice} from "./sort-choice";
-import {createElement} from "./utils/render-utils";
 import {TripSortItem} from "./trip-sort-item";
+import {AbstractComponent} from "./abstract-component";
 
-export class TripSort {
-  constructor() {
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
+export class Sort extends AbstractComponent {
   getTemplate() {
     return `
       <form class="trip-events__trip-sort  trip-sort" action="#" method="get">

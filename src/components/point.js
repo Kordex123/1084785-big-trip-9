@@ -1,5 +1,6 @@
 import {Activities, EventIcons, Events} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
+import {getDuration} from "./utils/date-utils";
 
 export class Point extends AbstractComponent {
   constructor({startDate, endDate, type, destination, price, additionalOptions}) {
@@ -44,7 +45,7 @@ export class Point extends AbstractComponent {
         </p>
         <p 
           class="event__duration">
-          1H 30M
+         ${getDuration(this._endDate, this._startDate)}
         </p>
       </div>
 

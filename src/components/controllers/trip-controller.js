@@ -5,13 +5,15 @@ import {EditPoint} from "../edit-point";
 import {TripInfo} from "../trip-info";
 import {TripTabs} from "../trip-tabs";
 import {TripFilters} from "../trip-filters";
-import {TripSort} from "../trip-sort";
+import {Sort} from "../sort";
 import {getTotalCost} from "../event-data";
+import {getDuration} from "../utils/date-utils";
 
 export class TripController {
   constructor(tripPageMainSection, pointData) {
     this._tripPageMainSection = tripPageMainSection;
     this._pointData = pointData;
+    this._sort = new Sort();
   }
 
   init() {
@@ -27,8 +29,10 @@ export class TripController {
     this._trip = new Trip(this._points);
     render(this._tripPageMainSection, this._trip.getElement(), Position.AFTEREND);
     this._refreshPoints();
-    render(this._tripPageMainSection, new TripSort().getElement(), Position.AFTEREND);
+    render(this._tripPageMainSection, this._sort.getElement(), Position.AFTEREND);
     totalCost.textContent = getTotalCost(this._pointData);
+    this._sort.getElement()
+      .addEventListener(`click`, (evt) => this._onSortClick(evt));
   }
 
   _refreshPoints() {
@@ -130,6 +134,30 @@ export class TripController {
     });
 
     return pointComponent;
+  }
+
+  _onSortClick(evt) {
+    evt.preventDefault();
+    let label = evt.target.closest(`label`);
+
+    if (!label) {
+      return;
+    }
+
+    switch (evt.target.getAttribute(`for`)) {
+      case `sort-event`:
+        this._pointData = this._pointData.sort((pointA, pointB) => pointA.startDate - pointB.startDate);
+        this._refreshTrip();
+        break;
+      case `sort-price`:
+        this._pointData = this._pointData.sort((pointA, pointB) => pointB.price - pointA.price);
+        this._refreshTrip();
+        break;
+      case `sort-time`:
+        this._pointData = this._pointData.sort((pointA, pointB) => getDuration(pointB.endDate, pointB.startDate) - getDuration(pointA.endDate, pointA.startDate));
+        this._refreshTrip();
+        break;
+    }
   }
 }
 
