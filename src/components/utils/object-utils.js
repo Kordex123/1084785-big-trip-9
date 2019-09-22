@@ -37,3 +37,5 @@ export const unrender = (element) => {
     element.remove();
   }
 };
+
+export const deepCopy = (object) => JSON.parse(JSON.stringify(object));

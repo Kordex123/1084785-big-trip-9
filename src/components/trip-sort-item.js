@@ -16,8 +16,7 @@ export class TripSortItem extends AbstractComponent {
         class="trip-sort__input  visually-hidden"
         type="radio"
         name="trip-sort"
-        value="sort-${name.toLowerCase()}"
-        checked="">
+        value="sort-${name.toLowerCase()}">
       <label
         class="trip-sort__btn"
         for="sort-${name.toLowerCase()}">
