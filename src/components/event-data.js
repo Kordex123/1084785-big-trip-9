@@ -1,8 +1,10 @@
+import {deepCopy} from "./utils/object-utils";
+
 const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const getRandomElement = (list) => list[getRandomNumber(0, list.length - 1)];
 const getRandomElements = (list, min, max) => {
   const listCopy = [...list];
-  const count = getRandomNumber(min, max);
+  const count = getRandomNumber(Math.min(list.length, min), Math.min(list.length, max));
   const elements = [];
   while (elements.length < count) {
     const chosenIndex = getRandomNumber(0, listCopy.length - 1);
@@ -11,7 +13,10 @@ const getRandomElements = (list, min, max) => {
   }
   return elements;
 };
-const getRandomPhotos = () => Array(getRandomNumber(2, 5)).fill(``).map(() => `http://picsum.photos/300/150?r=${Math.random()}`);
+const getRandomPhotos = () => Array(getRandomNumber(2, 5)).fill(``).map(() => ({
+  src: `http://picsum.photos/300/150?r=${Math.random()}`
+}));
+
 const getRandomDate = (minDate, canBeNextDay) => {
   const minHour = 7;
   const maxHour = 22;
@@ -82,42 +87,119 @@ const SENTENCES = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 
 export const Destinations = [
-  {name: `Amsterdam`, pictures: getRandomPhotos()},
-  {name: `Geneva`, pictures: getRandomPhotos()},
-  {name: `Charmonix`, pictures: getRandomPhotos()},
-  {name: `airport`, pictures: getRandomPhotos()},
-  {name: `Natural History Museum`, pictures: getRandomPhotos()},
-  {name: `Cerro Torre`, pictures: getRandomPhotos()},
-  {name: `Grand Canyon`, pictures: getRandomPhotos()},
-  {name: `Dead Sea`, pictures: getRandomPhotos()},
-  {name: `Rome`, pictures: getRandomPhotos()},
+  {name: `Amsterdam`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Geneva`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Charmonix`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `airport`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Natural History Museum`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Cerro Torre`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Grand Canyon`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Dead Sea`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
+  {name: `Rome`, description: getRandomElements(SENTENCES, 1, 3), pictures: getRandomPhotos()},
 ];
 
 export const Offer = [
-  {id: `luggage`, title: `Add luggage`, price: getRandomNumber(3, 5) * 5},
-  {id: `comfort`, title: `Switch to comfort class`, price: getRandomNumber(6, 20) * 10},
-  {id: `meal`, title: `Add meal`, price: getRandomNumber(2, 7) * 5},
-  {id: `seats`, title: `Choose seats`, price: getRandomNumber(1, 4) * 5},
-  {id: `train`, title: `Travel by train`, price: getRandomNumber(3, 6) * 5}
+  {
+    type: Events.TAXI,
+    offers: [
+      {title: `Add luggage`, price: getRandomNumber(3, 5) * 5},
+      {title: `Upgrade to a business class`, price: getRandomNumber(7, 14) * 5}
+    ]
+  },
+  {
+    type: Events.TRAIN,
+    offers: [
+      {title: `Book a taxi at the arrival point`, price: getRandomNumber(4, 6) * 5},
+      {title: `Order a breakfast`, price: getRandomNumber(1, 5) * 5},
+      {title: `Wake up at a certain time`, price: getRandomNumber(1, 5) * 5}
+    ]
+  },
+  {
+    type: Events.RESTAURANT,
+    offers: [
+      {title: `Choose live music`, price: getRandomNumber(4, 6) * 5},
+      {title: `Choose VIP area`, price: getRandomNumber(1, 5) * 5},
+    ]
+  },
+  {
+    type: Events.DRIVE,
+    offers: [
+      {title: `Choose comfort class`, price: getRandomNumber(8, 11) * 5},
+      {title: `Choose business class`, price: getRandomNumber(5, 7) * 5}
+    ]
+  },
+  {
+    type: Events.SHIP,
+    offers: [
+      {title: `Choose seats`, price: getRandomNumber(1, 4) * 5},
+      {title: `Upgrade to comfort class`, price: getRandomNumber(8, 11) * 5}
+    ]
+  },
+  {
+    type: Events.SIGHTSEEING,
+    offers: [],
+  },
+  {
+    type: Events.CHECK,
+    offers: [
+      {title: `Choose the time of check-in`, price: 30},
+      {title: `Choose the time of check-out`, price: 180},
+      {title: `Add breakfast`, price: 120},
+      {title: `Laundry`, price: 160}
+    ]
+  },
+  {
+    type: Events.FLIGHT,
+    offers: [
+      {title: `Choose meal`, price: 170},
+      {title: `Choose seats`, price: 100},
+      {title: `Upgrade to comfort class`, price: 40},
+      {title: `Upgrade to business class`, price: 140},
+      {title: `Additional lagguage`, price: 85},
+    ]
+  },
+  {
+    type: Events.TRANSPORT,
+    offers: [
+      {title: `Drive quickly, I'm in a hurry`, price: 60},
+      {title: `Drive slowly`, price: 180}
+    ]
+  },
+  {
+    type: Events.BUS,
+    offers:
+      [
+        {title: `Infotainment system`, price: 100}
+      ]
+  },
+  {
+    type: Events.TRIP,
+    offers:
+      [
+        {title: `Guide service`, price: 100}
+      ]
+  }
+
 ];
 
 const getEventData = ({previousDate, editMode = false, id}) => {
   const startDate = getRandomDate(previousDate, true);
   const endDate = getRandomDate(startDate);
+  const offerType = getRandomElement(Object.values(Events));
   return {
     id,
     startDate,
     endDate,
     editMode,
-    type: getRandomElement(Object.keys(Events)),
-    destination: getRandomElement(Destinations),
+    type: offerType,
+    destination: deepCopy(getRandomElement(Destinations)),
     price: getRandomNumber(1, 17) * 10,
-    additionalOptions: getRandomElements(Offer, 0, 2),
-    sentences: getRandomElements(SENTENCES, 1, 3)
+    additionalOptions: getRandomElements(Offer.find(({type}) => type === offerType).offers, 0, 2),
+    // sentences: getRandomElements(SENTENCES, 1, 3)
   };
 };
 
-export const getEvents = () => Array(17).fill(``).reduce((elements, event, idx) => {
+export const getEvents = () => Array(3).fill(``).reduce((elements, event, idx) => {
   if (idx === 0) {
     elements.push(getEventData({editMode: true, id: idx}));
   } else {
@@ -127,6 +209,12 @@ export const getEvents = () => Array(17).fill(``).reduce((elements, event, idx) 
 }, []);
 
 export const getTotalCost = (events) => {
-  return events.reduce((total, {price}) => total + price, 0);
+  return events.reduce((total, {price, additionalOptions}) => {
+    total += price;
+    for (let offer of additionalOptions) {
+      total += (offer.price);
+    }
+    return total;
+  }, 0);
 };
 

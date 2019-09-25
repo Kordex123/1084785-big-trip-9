@@ -1,4 +1,4 @@
-import {Activities, EventIcons, Events} from "./event-data";
+import {Activities, EventIcons} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
 import {getDuration} from "./utils/date-utils";
 
@@ -11,7 +11,6 @@ export class Point extends AbstractComponent {
     this._destination = destination;
     this._price = price;
     this._additionalOptions = additionalOptions;
-    this._element = null;
   }
 
   getTemplate() {
@@ -22,11 +21,11 @@ export class Point extends AbstractComponent {
           class="event__type-icon" 
           width="42" 
           height="42" 
-          src="img/icons/${EventIcons[Events[this._type]]}" 
+          src="img/icons/${EventIcons[this._type]}" 
           alt="Event type icon">
       </div>
       <h3 class="event__title">
-           ${Events[this._type]} ${Activities[this._type] ? ` in ${this._destination.name}` : ` to ${this._destination.name}`}
+           ${this._type} ${Object.values(Activities).includes(this._type) ? ` in ${this._destination.name}` : ` to ${this._destination.name}`}
       </h3>
 
       <div class="event__schedule">

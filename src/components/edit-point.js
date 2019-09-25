@@ -1,17 +1,17 @@
-import {Activities, Destinations, EventIcons, Events, Transfers} from "./event-data";
+import {Activities, Destinations, EventIcons, Offer, Transfers} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
+import {deepCopy} from "./utils/object-utils";
 
 export class EditPoint extends AbstractComponent {
-  constructor({startDate, endDate, type, destination, price, additionalOptions, sentences}) {
+  constructor({startDate, endDate, type, destination, price, additionalOptions}) {
     super();
-    this._description = sentences;
     this._startDate = startDate;
     this._endDate = endDate;
     this._type = type;
-    this._destination = destination;
+    this._destination = deepCopy(destination);
     this._price = price;
     this._additionalOptions = additionalOptions;
-    this._element = null;
+    this._getOffer = this._getOffer.bind(this);
   }
 
   getTemplate() {
@@ -21,7 +21,7 @@ export class EditPoint extends AbstractComponent {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${EventIcons[Events[this._type]]}" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${EventIcons[this._type]}" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
   
@@ -40,11 +40,11 @@ export class EditPoint extends AbstractComponent {
   
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${Events[this._type]} ${Activities[this._type] ? ` in ` : ` to `}
+              ${this._type} ${Object.values(Activities).includes(this._type) ? ` in ` : ` to `}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${Destinations.map((name) => `<option value="${name}"></option>`).join(``)}
+              ${Destinations.map(({name}) => `<option value="${name}"></option>`).join(``)}
             </datalist>
           </div>
   
@@ -53,13 +53,13 @@ export class EditPoint extends AbstractComponent {
               From
             </label>
             <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" 
-              value="${this._startDate.getDay()}/${this._startDate.getMonth()}/${this._startDate.getFullYear()} ${this._startDate.getHours()}:${this._startDate.getMinutes()}">
+              value="${this._startDate.getMonth()}/${this._startDate.getDate()}/${this._startDate.getFullYear()} ${this._startDate.getHours()}:${this._startDate.getMinutes()}">
             —
             <label class="visually-hidden" for="event-end-time-1">
               To
             </label>
             <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" 
-              value="${this._endDate.getDay()}/${this._endDate.getMonth()}/${this._endDate.getFullYear()} ${this._endDate.getHours()}:${this._endDate.getMinutes()}">
+              value="${this._endDate.getMonth()}/${this._endDate.getDate()}/${this._endDate.getFullYear()} ${this._endDate.getHours()}:${this._endDate.getMinutes()}">
           </div>
   
           <div class="event__field-group  event__field-group--price">
@@ -92,21 +92,27 @@ export class EditPoint extends AbstractComponent {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
   
             <div class="event__available-offers">
-              ${this._additionalOptions.map(this._getOffer).join(``)}    
+              ${Offer.find(({type}) => type === this._type).offers.map(this._getOffer).join(``)}    
             </div>
           </section>
   
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">
-              ${this._description.join(`. `)}
-            </p>
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${this._destination.pictures.map((picture) =>`<img class="event__photo" src="${picture}" alt="Event photo">`).join(``)}
-              </div>
-            </div>
-          </section>
+          ${this._destination.description || this._destination.pictures ? `
+            <section class="event__section  event__section--destination">
+              ${this._destination.description ? `
+                <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                <p class="event__destination-description">
+                  ${this._destination.description.join(`. `)}
+                </p>
+              ` : ``}
+              ${this._destination.pictures ? `
+                <div class="event__photos-container">
+                  <div class="event__photos-tape">
+                    ${this._destination.pictures.map((picture) =>`<img class="event__photo" src="${picture.src}" alt="Event photo">`).join(``)}
+                  </div>
+                </div>
+              ` : ``}
+            </section>
+          ` : ``}
         </section>
       </form>
     `;
@@ -132,17 +138,16 @@ export class EditPoint extends AbstractComponent {
   }
 
   _getOffer(offer) {
-    const id = offer.id;
     return `
       <div class="event__offer-selector">
         <input 
           class="event__offer-checkbox  visually-hidden" 
-          id="event-offer-${id}-1" 
           type="checkbox" 
-          name="event-offer-${id}">
+          name="event-offer"
+          ${this._additionalOptions.includes(offer) ? `checked` : ``}>
         <label 
           class="event__offer-label" 
-          for="event-offer-${id}-1">
+          for="event-offer-1">
               <span class="event__offer-title">${offer.title}</span>
               + €
               <span class="event__offer-price">${offer.price}</span>
