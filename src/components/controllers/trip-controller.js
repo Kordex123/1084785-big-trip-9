@@ -5,7 +5,7 @@ import {TripTabs} from "../trip-tabs";
 import {TripFilters} from "../trip-filters";
 import {Sort} from "../sort";
 import {getTotalCost} from "../event-data";
-import {getDuration} from "../utils/date-utils";
+import {getDurationInMinutes} from "../utils/date-utils";
 import {PointController} from "./point-controller";
 
 export class TripController {
@@ -107,7 +107,7 @@ export class TripController {
         this._refreshTrip();
         break;
       case `sort-time`:
-        this._pointsData = this._pointsData.sort((pointA, pointB) => getDuration(pointB.endDate, pointB.startDate) - getDuration(pointA.endDate, pointA.startDate));
+        this._pointsData = this._pointsData.sort((pointA, pointB) => getDurationInMinutes(pointB.endDate, pointB.startDate) - getDurationInMinutes(pointA.endDate, pointA.startDate));
         this._refreshTrip();
         break;
     }
