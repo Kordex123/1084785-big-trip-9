@@ -13,6 +13,7 @@ const getRandomElements = (list, min, max) => {
   }
   return elements;
 };
+
 const getRandomPhotos = () => Array(getRandomNumber(2, 5)).fill(``).map(() => ({
   src: `http://picsum.photos/300/150?r=${Math.random()}`
 }));

@@ -1,6 +1,7 @@
 import {Activities, EventIcons} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
 import {getDuration} from "./utils/date-utils";
+import moment from "moment";
 
 export class Point extends AbstractComponent {
   constructor({startDate, endDate, type, destination, price, additionalOptions}) {
@@ -33,13 +34,13 @@ export class Point extends AbstractComponent {
           <time 
             class="event__start-time" 
             datetime="${this._startDate}">
-            ${this._startDate.getHours()}:${this._startDate.getMinutes()}
+            ${moment(this._startDate).format(`HH:mm`)}
           </time>
           —
           <time 
             class="event__end-time" 
             datetime="${this._endDate}">
-            ${this._endDate.getHours()}:${this._endDate.getMinutes()}
+            ${moment(this._endDate).format(`HH:mm`)}
           </time>
         </p>
         <p 

@@ -53,13 +53,13 @@ export class EditPoint extends AbstractComponent {
               From
             </label>
             <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" 
-              value="${this._startDate.getMonth()}/${this._startDate.getDate()}/${this._startDate.getFullYear()} ${this._startDate.getHours()}:${this._startDate.getMinutes()}">
+              value="${this._startDate.getMonth() + 1}/${this._startDate.getDate()}/${this._startDate.getFullYear()} ${this._startDate.getHours()}:${this._startDate.getMinutes()}">
             —
             <label class="visually-hidden" for="event-end-time-1">
               To
             </label>
             <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" 
-              value="${this._endDate.getMonth()}/${this._endDate.getDate()}/${this._endDate.getFullYear()} ${this._endDate.getHours()}:${this._endDate.getMinutes()}">
+              value="${this._endDate.getMonth() + 1}/${this._endDate.getDate()}/${this._endDate.getFullYear()} ${this._endDate.getHours()}:${this._endDate.getMinutes()}">
           </div>
   
           <div class="event__field-group  event__field-group--price">
