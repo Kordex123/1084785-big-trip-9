@@ -4,15 +4,17 @@ import {Destinations, Events, Offer} from "../event-data";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/light.css";
+import moment from "moment";
 
 export class PointController {
-  constructor(pointData, onDataChange, onChangeView, refreshTrip, removePoint) {
+  constructor(pointData, onDataChange, onChangeView, refreshTrip, refreshTotalCost, removePoint) {
     this._pointData = pointData;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._pointView = new Point(this._pointData);
     this._editPoint = new EditPoint(this._pointData);
     this._refreshTrip = refreshTrip;
+    this._refreshTotalCost = refreshTotalCost;
     this._removePoint = removePoint;
 
     this.init();
@@ -20,17 +22,24 @@ export class PointController {
 
   init() {
 
-    flatpickr(this._editPoint.getElement().querySelector(`[name=event-start-time]`), {
+    const eventStartDatePicker = flatpickr(this._editPoint.getElement().querySelector(`[name=event-start-time]`), {
       enableTime: true,
-      dateFormat: `m.d.y H:i`,
-      defaultDate: this._pointData._startDate,
+      dateFormat: `m.d.y h:i`,
+      defaultDate: this._pointData.startDate,
+      enable: [(startDate) => !moment(startDate).isAfter(this._pointData.endDate)],
+      maxDate: this._pointData.endDate
     });
 
-    flatpickr(this._editPoint.getElement().querySelector(`[name=event-end-time]`), {
+    const eventEndDatePicker = flatpickr(this._editPoint.getElement().querySelector(`[name=event-end-time]`), {
       enableTime: true,
-      dateFormat: `m.d.y H:i`,
-      defaultDate: this._pointData._endDate,
+      dateFormat: `m.d.y h:i`,
+      defaultDate: this._pointData.endDate,
+      enable: [(endDate) => !moment(endDate).isBefore(moment(this._pointData.startDate).startOf(`day`))],
+      minDate: this._pointData.startDate
     });
+
+    eventStartDatePicker.config.onChange = [(startDate) => eventEndDatePicker.set(`minDate`, startDate[0])];
+    eventEndDatePicker.config.onChange = [(endDate) => eventStartDatePicker.set(`maxDate`, endDate[0])];
 
     const onEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
@@ -44,19 +53,29 @@ export class PointController {
         const destinationName = event.target.value;
         let foundObjectByName = Destinations.find(({name}) => name === destinationName);
 
-        this._editPoint._destination.description = foundObjectByName && foundObjectByName.description;
-        this._editPoint._destination.pictures = foundObjectByName && foundObjectByName.pictures;
-        this._editPoint._destination.name = destinationName;
+        if (foundObjectByName) {
+          this._editPoint._destination.description = foundObjectByName && foundObjectByName.description;
+          this._editPoint._destination.pictures = foundObjectByName && foundObjectByName.pictures;
+          this._editPoint._destination.name = destinationName;
 
-        let oldEditPointElement = this._editPoint.getElement();
-        this._editPoint.removeElement();
-        // this._editPoint.getElement().replaceWith(newEditPoint.getElement());
-        oldEditPointElement.parentElement.replaceChild(this._editPoint.getElement(), oldEditPointElement);
-        oldEditPointElement = null;
+          let oldEditPointElement = this._editPoint.getElement();
+          this._editPoint.removeElement();
+          // this._editPoint.getElement().replaceWith(newEditPoint.getElement());
+          oldEditPointElement.parentElement.replaceChild(this._editPoint.getElement(), oldEditPointElement);
+          oldEditPointElement = null;
 
-        this.init();
+          this.init();
+        }
+      });
 
-        document.addEventListener(`keydown`, onEscKeyDown);
+    this._editPoint.getElement().querySelector(`.event__input--price`)
+      .addEventListener(`change`, (event) => {
+        const price = Number(event.target.value);
+        if (Number.isNaN(price) || !Number.isInteger(price) || price < 0) {
+          alert(`Please provide integer positive number or 0`); // eslint-disable-line no-alert
+          return;
+        }
+        this._editPoint._price = price;
       });
 
     this._editPoint.getElement().querySelector(`.event__input--destination`)
@@ -67,7 +86,12 @@ export class PointController {
     this._editPoint.getElement().querySelectorAll(`.event__offer-selector`).forEach((offer) =>
       offer.addEventListener(`click`, (event) => {
         const offerCheckBox = event.currentTarget.querySelector(`.event__offer-checkbox`);
-        offerCheckBox.checked = !offerCheckBox.checked;
+        const isChecked = offerCheckBox.hasAttribute(`checked`);
+        if (isChecked) {
+          offerCheckBox.removeAttribute(`checked`);
+        } else {
+          offerCheckBox.setAttribute(`checked`, ``);
+        }
       }));
 
     this._editPoint.getElement().querySelectorAll(`.event__type-input`).forEach((input) =>
@@ -107,24 +131,24 @@ export class PointController {
         event.preventDefault();
 
         const formData = new FormData(this._editPoint.getElement());
-        const chosenOffers = Array.from(formData.entries())
-          .filter((option) => option[0] === `event-offer`);
         const allOffers = Offer.find(({type}) => type === this._editPoint._type).offers;
+        const chosenOffers = Array.from(this._editPoint.getElement().querySelectorAll(`.event__offer-checkbox`))
+          .map((checkbox, index) => ({isChecked: checkbox.hasAttribute(`checked`), index}))
+          .filter(({isChecked}) => isChecked)
+          .map(({index}) => allOffers[index]);
         const entry = {
           destination: this._editPoint._destination,
           startDate: new Date(formData.get(`event-start-time`).toString()),
           endDate: new Date(formData.get(`event-end-time`).toString()),
           type: this._editPoint._type,
-          price: formData.get(`event-price`),
+          price: this._editPoint._price,
           additionalOptions: chosenOffers
-            .filter((option) => option[1] === `on`)
-            .map((value, idx) => allOffers[idx])
-            // .reduce((chosenOptions, option, idx) => {
-            //   if (option[1] === `on`) {
-            //     chosenOptions.push(offers[idx]);
-            //   }
-            //   return chosenOptions;
-            // }, [])
+          // .reduce((chosenOptions, option, idx) => {
+          //   if (option[1] === `on`) {
+          //     chosenOptions.push(offers[idx]);
+          //   }
+          //   return chosenOptions;
+          // }, [])
           // additionalOptions: Array.from(formData.entries()).reduce((chosenOptions, optionName) => {
           //   const prefix = `event-offer-`;
           //   if (optionName[0].startsWith(prefix)) {
@@ -137,6 +161,7 @@ export class PointController {
         };
         Object.assign(this._pointData, entry);
         this._refreshTrip();
+        this._refreshTotalCost();
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
@@ -157,6 +182,7 @@ export class PointController {
         this._removePoint(this._pointData.id);
         this._pointView.removeElement();
         this._editPoint.removeElement();
+        this._refreshTotalCost();
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
