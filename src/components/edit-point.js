@@ -15,6 +15,7 @@ export class EditPoint extends AbstractComponent {
   }
 
   getTemplate() {
+    const offers = Offer.find(({type}) => type === this._type).offers;
     return `
       <form class="event  event--edit" action="#" method="post">
         <header class="event__header">
@@ -87,14 +88,14 @@ export class EditPoint extends AbstractComponent {
         </header>
   
         <section class="event__details">
-  
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-  
-            <div class="event__available-offers">
-              ${Offer.find(({type}) => type === this._type).offers.map(this._getOffer).join(``)}    
-            </div>
-          </section>
+         ${offers && offers.length ? `
+            <section class="event__section  event__section--offers">
+              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                <div class="event__available-offers">
+                ${offers.map(this._getOffer).join(``)}    
+                </div>
+            </section>
+          ` : ``}
   
           ${this._destination.description || this._destination.pictures ? `
             <section class="event__section  event__section--destination">

@@ -1,24 +1,28 @@
 import {timelineFilters} from "./trip-filters-data";
-import {createElement} from "./utils/render-utils";
-import {TripFilter} from "./trip-filter";
+import {AbstractComponent} from "./abstract-component";
 
-export class TripFilters {
-  constructor() {
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
+export class TripFilters extends AbstractComponent {
 
   getTemplate() {
     return `
     <form class="trip-filters" action="#" method="get">
-        ${Object.values(timelineFilters).map((filter) => new TripFilter(filter).getTemplate()).join(``)}
-        <button class="visually-hidden" type="submit">Accept filter</button>
+        ${Object.values(timelineFilters).map((filter) => `
+          <div class="trip-filters__filter">
+              <input 
+                  id="filter-${filter.id}" 
+                  class="trip-filters__filter-input  visually-hidden" 
+                  type="radio" 
+                  name="trip-filter" 
+                  value="${filter.id}"
+                  ${filter.id === `everything` ? `checked` : ``}>
+              <label 
+                  class="trip-filters__filter-label" 
+                  for="filter-${filter.id}">
+                  ${filter.name}
+              </label>
+          </div>
+        `).join(``)}
+      <button class="visually-hidden" type="submit">Accept filter</button>
     </form>
   `;
   }

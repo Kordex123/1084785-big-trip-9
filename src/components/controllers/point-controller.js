@@ -7,15 +7,12 @@ import "flatpickr/dist/themes/light.css";
 import moment from "moment";
 
 export class PointController {
-  constructor(pointData, onDataChange, onChangeView, refreshTrip, refreshTotalCost, removePoint) {
+  constructor(pointData, onDataChange, onChangeView) {
     this._pointData = pointData;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._pointView = new Point(this._pointData);
     this._editPoint = new EditPoint(this._pointData);
-    this._refreshTrip = refreshTrip;
-    this._refreshTotalCost = refreshTotalCost;
-    this._removePoint = removePoint;
 
     this.init();
   }
@@ -24,7 +21,7 @@ export class PointController {
 
     const eventStartDatePicker = flatpickr(this._editPoint.getElement().querySelector(`[name=event-start-time]`), {
       enableTime: true,
-      dateFormat: `m.d.y h:i`,
+      dateFormat: `m/d/y h:i`,
       defaultDate: this._pointData.startDate,
       enable: [(startDate) => !moment(startDate).isAfter(this._pointData.endDate)],
       maxDate: this._pointData.endDate
@@ -32,7 +29,7 @@ export class PointController {
 
     const eventEndDatePicker = flatpickr(this._editPoint.getElement().querySelector(`[name=event-end-time]`), {
       enableTime: true,
-      dateFormat: `m.d.y h:i`,
+      dateFormat: `m/d/y h:i`,
       defaultDate: this._pointData.endDate,
       enable: [(endDate) => !moment(endDate).isBefore(moment(this._pointData.startDate).startOf(`day`))],
       minDate: this._pointData.startDate
@@ -136,7 +133,7 @@ export class PointController {
           .map((checkbox, index) => ({isChecked: checkbox.hasAttribute(`checked`), index}))
           .filter(({isChecked}) => isChecked)
           .map(({index}) => allOffers[index]);
-        const entry = {
+        const newPointData = Object.assign({}, this._pointData, {
           destination: this._editPoint._destination,
           startDate: new Date(formData.get(`event-start-time`).toString()),
           endDate: new Date(formData.get(`event-end-time`).toString()),
@@ -158,10 +155,9 @@ export class PointController {
           //   }
           //   return chosenOptions;
           // }, [])
-        };
-        Object.assign(this._pointData, entry);
-        this._refreshTrip();
-        this._refreshTotalCost();
+        });
+
+        this._onDataChange(newPointData, this._pointData);
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
@@ -179,10 +175,9 @@ export class PointController {
     this._editPoint.getElement()
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._removePoint(this._pointData.id);
         this._pointView.removeElement();
         this._editPoint.removeElement();
-        this._refreshTotalCost();
+        this._onDataChange(null, this._pointData);
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
