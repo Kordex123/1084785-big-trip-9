@@ -1,6 +1,5 @@
 import 'moment-precise-range-plugin';
-const moment = require(`moment`);
-require(`moment/locale/cs`);
+import moment from "moment";
 
 export const isSameDay = (firstDate, secondDate) => {
   return firstDate.getDate() === secondDate.getDate() &&
@@ -13,10 +12,10 @@ export const getDayMillis = (date) => {
 };
 
 export const getDayToCounter = (events) => {
-  const allDays = events.map((event) => getDayMillis(event._startDate));
+  const allDays = events.map((event) => getDayMillis(event.startDate));
   const uniqueSortedDays = Array.from(new Set(allDays)).sort();
   return uniqueSortedDays.reduce((result, day, idx) => {
-    result[day] = idx;
+    result[day] = idx + 1;
     return result;
   }, {});
 };
@@ -47,6 +46,17 @@ export const getDurationInMinutes = (endDate, startDate) => {
   const startDateEvent = moment(startDate);
   const endDateEvent = moment(endDate);
   const timeDifference = moment.duration(endDateEvent.diff(startDateEvent)).asMinutes();
+  return timeDifference;
+};
+
+export const getDurationInHours = (endDate, startDate) => {
+  // const durationInMinutes = getDurationInMinutes(endDate, startDate);
+  // const hours = Math.floor(Number(durationInMinutes) / 60);
+  // const minutes = Number(durationInMinutes) % 60;
+  // return hours > 0 ? `${hours} H` : minutes > 0 ? `${minutes} minutes` : ``;
+  const startDateEvent = moment(startDate);
+  const endDateEvent = moment(endDate);
+  const timeDifference = moment.duration(endDateEvent.diff(startDateEvent)).asHours();
   return timeDifference;
 };
 

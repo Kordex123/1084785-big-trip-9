@@ -200,7 +200,7 @@ const getEventData = ({previousDate, editMode = false, id}) => {
   };
 };
 
-export const getEvents = () => Array(3).fill(``).reduce((elements, event, idx) => {
+export const getEvents = () => Array(7).fill(``).reduce((elements, event, idx) => {
   if (idx === 0) {
     elements.push(getEventData({editMode: true, id: idx}));
   } else {

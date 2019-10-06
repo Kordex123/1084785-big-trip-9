@@ -32,6 +32,11 @@ export const render = (container, element, place) => {
   }
 };
 
+export const replaceValues = (arrayRef, values) => {
+  arrayRef.length = 0;
+  values.forEach((value) => arrayRef.push(value));
+};
+
 export const unrender = (element) => {
   if (element) {
     element.remove();

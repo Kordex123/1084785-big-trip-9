@@ -1,5 +1,5 @@
-export const sortChoice = [
-  {type: `Event`},
-  {type: `Time`, hasIcon: true},
-  {type: `Price`, hasIcon: true},
-];
+export const sortChoice = {
+  EVENT: {id: `event`, name: `Event`},
+  TIME: {id: `time`, name: `Time`, hasIcon: true},
+  PRICE: {id: `price`, name: `Price`, hasIcon: true},
+};
