@@ -1,6 +1,6 @@
 import {AbstractComponent} from "./abstract-component";
 import {Transfers} from "./event-data";
-import {getDurationInHours} from "./utils/date-utils";
+import {getDurationInHours, getDurationInHoursAndMinutes} from "./utils/date-utils";
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
@@ -46,7 +46,7 @@ export class Statistics extends AbstractComponent {
     }, {});
 
     const transportCountMap = this._pointsData
-      .filter((pointData) => Object.values(Transfers).includes(pointData.type))
+      .filter((pointData) => Object.values(Transfers).some((type) => type.toLowerCase() === pointData.type))
       .reduce((result, pointData) => {
         if (!result[pointData.type]) {
           result[pointData.type] = 0;
@@ -81,7 +81,7 @@ export class Statistics extends AbstractComponent {
       container: durationCtx,
       title: `TIME SPENT`,
       labelToDataMap: placeToDurationMap,
-      formatter: (time) => `${time}H`,
+      formatter: (time) => getDurationInHoursAndMinutes(time),
     };
 
 
@@ -155,6 +155,9 @@ export class Statistics extends AbstractComponent {
             fontColor: `#000000`,
             fontSize: 13
           }
+        },
+        tooltips: {
+          enabled: false,
         }
       }
     });

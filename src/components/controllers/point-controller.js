@@ -1,18 +1,21 @@
 import {Point} from "../point";
 import {EditPoint} from "../edit-point";
-import {Destinations, Events, Offer} from "../event-data";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/light.css";
 import moment from "moment";
+import {ActionType, PointModes} from "../dict";
 
 export class PointController {
-  constructor(pointData, onDataChange, onChangeView) {
+  constructor(pointData, offersDict, destinationDict, onDataChange, onChangeView, mode = PointModes.EDIT) {
     this._pointData = pointData;
+    this._offersDict = offersDict;
+    this._destinationDict = destinationDict;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._pointView = new Point(this._pointData);
-    this._editPoint = new EditPoint(this._pointData);
+    this._editPoint = new EditPoint(this._pointData, this._offersDict, this._destinationDict, mode);
+    this._mode = mode;
 
     this.init();
   }
@@ -48,20 +51,13 @@ export class PointController {
     this._editPoint.getElement().querySelector(`.event__input--destination`)
       .addEventListener(`change`, (event) => {
         const destinationName = event.target.value;
-        let foundObjectByName = Destinations.find(({name}) => name === destinationName);
+        let foundObjectByName = this._destinationDict.find(({name}) => name === destinationName);
 
         if (foundObjectByName) {
           this._editPoint._destination.description = foundObjectByName && foundObjectByName.description;
           this._editPoint._destination.pictures = foundObjectByName && foundObjectByName.pictures;
           this._editPoint._destination.name = destinationName;
-
-          let oldEditPointElement = this._editPoint.getElement();
-          this._editPoint.removeElement();
-          // this._editPoint.getElement().replaceWith(newEditPoint.getElement());
-          oldEditPointElement.parentElement.replaceChild(this._editPoint.getElement(), oldEditPointElement);
-          oldEditPointElement = null;
-
-          this.init();
+          this._refreshEditPoint();
         }
       });
 
@@ -94,17 +90,11 @@ export class PointController {
     this._editPoint.getElement().querySelectorAll(`.event__type-input`).forEach((input) =>
       input.addEventListener(`click`, (event) => {
         const eventType = event.target.value;
-        let foundTypeByValue = Offer.find(({type}) => type.toLowerCase() === eventType);
+        let foundTypeByValue = this._offersDict.find(({type}) => type.toLowerCase() === eventType);
         this._editPoint._type = foundTypeByValue && foundTypeByValue.type;
         this._editPoint._additionalOptions = foundTypeByValue && foundTypeByValue.offers;
-        let oldEditPointElement = this._editPoint.getElement();
-        this._editPoint.removeElement();
-        // this._editPoint.getElement().replaceWith(newEditPoint.getElement());
-        oldEditPointElement.parentElement.replaceChild(this._editPoint.getElement(), oldEditPointElement);
-        oldEditPointElement = null;
 
-        this.init();
-
+        this._refreshEditPoint();
         document.addEventListener(`keydown`, onEscKeyDown);
       }));
 
@@ -128,7 +118,7 @@ export class PointController {
         event.preventDefault();
 
         const formData = new FormData(this._editPoint.getElement());
-        const allOffers = Offer.find(({type}) => type === this._editPoint._type).offers;
+        const allOffers = this._offersDict.find(({type}) => type === this._editPoint._type).offers;
         const chosenOffers = Array.from(this._editPoint.getElement().querySelectorAll(`.event__offer-checkbox`))
           .map((checkbox, index) => ({isChecked: checkbox.hasAttribute(`checked`), index}))
           .filter(({isChecked}) => isChecked)
@@ -139,7 +129,8 @@ export class PointController {
           endDate: new Date(formData.get(`event-end-time`).toString()),
           type: this._editPoint._type,
           price: this._editPoint._price,
-          additionalOptions: chosenOffers
+          additionalOptions: chosenOffers,
+          isFavorite: formData.get(`event-favorite`) === `on`,
           // .reduce((chosenOptions, option, idx) => {
           //   if (option[1] === `on`) {
           //     chosenOptions.push(offers[idx]);
@@ -157,8 +148,9 @@ export class PointController {
           // }, [])
         });
 
-        this._onDataChange(newPointData, this._pointData);
+        this._onDataChange(this._mode === PointModes.ADD ? ActionType.CREATE : ActionType.UPDATE, newPointData);
         document.removeEventListener(`keydown`, onEscKeyDown);
+
       });
 
     this._editPoint.getElement().querySelector(`[name=event-start-time]`)
@@ -171,13 +163,19 @@ export class PointController {
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
+    this._editPoint.getElement().querySelector(`[name=event-end-time]`)
+      .addEventListener(`focus`, () => {
+        document.removeEventListener(`keydown`, onEscKeyDown);
+      });
 
     this._editPoint.getElement()
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._pointView.removeElement();
-        this._editPoint.removeElement();
-        this._onDataChange(null, this._pointData);
+        if (this._mode === PointModes.EDIT) {
+          this._onDataChange(ActionType.DELETE, this._pointData);
+        } else {
+          this._onChangeView();
+        }
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 
@@ -189,25 +187,31 @@ export class PointController {
         document.addEventListener(`keydown`, onEscKeyDown);
       });
 
-    this._editPoint.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, () => {
-        this._editPoint.getElement().replaceWith(this._pointView.getElement());
-      });
+    if (this._mode !== PointModes.ADD) {
+      this._editPoint.getElement()
+        .querySelector(`.event__rollup-btn`)
+        .addEventListener(`click`, () => {
+          this._editPoint.getElement().replaceWith(this._pointView.getElement());
+        });
+    }
 
     return this._pointView;
   }
 
-  _getDestination(name) {
-    return Destinations.find((el) => el.name === name);
-  }
+  _refreshEditPoint() {
+    let oldEditPointElement = this._editPoint.getElement();
+    this._editPoint.removeElement();
+    // this._editPoint.getElement().replaceWith(newEditPoint.getElement());
+    oldEditPointElement.parentElement.replaceChild(this._editPoint.getElement(), oldEditPointElement);
+    oldEditPointElement = null;
 
-  _getType(type) {
-    return Object.values(Events).find((eventType) => eventType.toLowerCase() === type);
+    this.init();
   }
 
   setDefaultView() {
-    if (!this._pointView.getElement().parentElement) {
+    /* if (this._mode === PointModes.ADD) {
+      this._editPoint.getElement().remove();
+    } else */ if (!this._pointView.getElement().parentElement) {
       this._editPoint.getElement().parentElement.replaceChild(this._pointView.getElement(), this._editPoint.getElement());
     }
   }

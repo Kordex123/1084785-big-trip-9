@@ -1,13 +1,17 @@
 import {TripTabs} from "../trip-tabs";
-import {resultPresentation} from "../trip-tabs-data";
-import {Statistics} from "../statistics";
+import {ResultPresentations} from "../dict";
 
 export class TripTabsController {
-  constructor(tripPageMainSection, pointsData) {
+  constructor(tripPageMainSection, pointsData, statisticsController) {
     this._tripTabs = new TripTabs();
     this._tripPageMainSection = tripPageMainSection;
-    this._statistics = new Statistics(pointsData);
+    this._statisticsController = statisticsController;
     this.init();
+
+    this.refreshTabs = this.refreshTabs.bind(this);
+
+    this._tabChoice = ResultPresentations.TABLE;
+    this.refreshTabs();
   }
 
   init() {
@@ -15,25 +19,29 @@ export class TripTabsController {
       const tabs = this._tripTabs.getElement().querySelectorAll(`.trip-tabs__btn`);
       tabs.forEach((tab) => tab.classList.remove(`trip-tabs__btn--active`));
       evt.target.classList.add(`trip-tabs__btn--active`);
-
-      switch (evt.target.textContent) {
-        case resultPresentation.TABLE:
-          this._statistics.getElement().style.display = `none`;
-          this._show();
-          break;
-        case resultPresentation.STATS:
-          this._hide();
-          this._statistics.getElement().style.display = `block`;
-          break;
-      }
+      this._tabChoice = evt.target.textContent;
+      this.refreshTabs();
     });
   }
 
-  _show() {
+  refreshTabs() {
+    switch (this._tabChoice) {
+      case ResultPresentations.TABLE:
+        this._statisticsController.hideStats();
+        this._showTrip();
+        break;
+      case ResultPresentations.STATS:
+        this._hideTrip();
+        this._statisticsController.showStats();
+        break;
+    }
+  }
+
+  _showTrip() {
     this._tripPageMainSection.parentElement.style.display = `block`;
   }
 
-  _hide() {
+  _hideTrip() {
     this._tripPageMainSection.parentElement.style.display = `none`;
   }
 }

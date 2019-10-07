@@ -1,28 +1,34 @@
-import {Activities, Destinations, EventIcons, Offer, Transfers} from "./event-data";
+import {Activities, Events, Transfers} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
 import {deepCopy} from "./utils/object-utils";
+import {PointModes} from "./dict";
 
 export class EditPoint extends AbstractComponent {
-  constructor({startDate, endDate, type, destination, price, additionalOptions}) {
+  constructor({id, startDate, endDate, type, destination, price, additionalOptions, isFavorite}, offersDict, destinationDict, mode = PointModes.EDIT) {
     super();
+    this._id = id;
     this._startDate = startDate;
     this._endDate = endDate;
     this._type = type;
     this._destination = deepCopy(destination);
     this._price = price;
     this._additionalOptions = additionalOptions;
+    this._offersDict = offersDict;
+    this._destinationDict = destinationDict;
+    this._mode = mode;
+    this._isFavorite = isFavorite;
     this._getOffer = this._getOffer.bind(this);
   }
 
   getTemplate() {
-    const offers = Offer.find(({type}) => type === this._type).offers;
+    const offers = this._offersDict.find(({type}) => type === this._type).offers;
     return `
-      <form class="event  event--edit" action="#" method="post">
+      <form class="${this._mode === PointModes.ADD ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${EventIcons[this._type]}" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
   
@@ -41,11 +47,11 @@ export class EditPoint extends AbstractComponent {
   
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${this._type} ${Object.values(Activities).includes(this._type) ? ` in ` : ` to `}
+              ${Events[this._type.toUpperCase()]} ${Object.keys(Activities).includes(this._type.toUpperCase()) ? ` in ` : ` to `}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${Destinations.map(({name}) => `<option value="${name}"></option>`).join(``)}
+              ${this._destinationDict.map(({name}) => `<option value="${name}"></option>`).join(``)}
             </datalist>
           </div>
   
@@ -72,19 +78,21 @@ export class EditPoint extends AbstractComponent {
           </div>
   
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-  
-          <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked="">
-          <label class="event__favorite-btn" for="event-favorite-1">
-            <span class="visually-hidden">Add to favorite</span>
-            <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-              <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"></path>
-            </svg>
-          </label>
-  
-          <button class="event__rollup-btn" type="button">
-            <span class="visually-hidden">Open event</span>
-          </button>
+          <button class="event__reset-btn" type="reset">${this._mode === PointModes.ADD ? `Cancel` : `Delete`}</button>
+
+          ${this._mode !== PointModes.ADD ? `
+            <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : `` }>
+            <label class="event__favorite-btn" for="event-favorite-1">
+              <span class="visually-hidden">Add to favorite</span>
+              <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"></path>
+              </svg>
+            </label>
+    
+            <button class="event__rollup-btn" type="button">
+              <span class="visually-hidden">Open event</span>
+            </button>
+          ` : ``}
         </header>
   
         <section class="event__details">
@@ -102,7 +110,7 @@ export class EditPoint extends AbstractComponent {
               ${this._destination.description ? `
                 <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                 <p class="event__destination-description">
-                  ${this._destination.description.join(`. `)}
+                  ${this._destination.description}
                 </p>
               ` : ``}
               ${this._destination.pictures ? `
@@ -145,9 +153,9 @@ export class EditPoint extends AbstractComponent {
           class="event__offer-checkbox  visually-hidden" 
           type="checkbox" 
           name="event-offer"
-          ${this._additionalOptions.includes(offer) ? `checked` : ``}>
-        <label 
-          class="event__offer-label" 
+          ${this._additionalOptions.some(({title}) => title === offer.title) ? `checked` : ``}>
+        <label
+          class="event__offer-label"
           for="event-offer-1">
               <span class="event__offer-title">${offer.title}</span>
               + €

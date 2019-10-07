@@ -7,7 +7,7 @@ export class Trip extends AbstractComponent {
     super();
     this._dayToCounter = getDayToCounter(unfilteredPointsData);
     this._groupedEvents = unfilteredPointsData.reduce((allGroups, event) => {
-      if (!pointsData.includes(event)) {
+      if (pointsData.every(({id}) => id !== event.id)) {
         return allGroups;
       }
       const lastGroup = allGroups[allGroups.length - 1];
@@ -29,7 +29,7 @@ export class Trip extends AbstractComponent {
     for (let groupIdx = 0; groupIdx < this._groupedEvents.length; ++groupIdx) {
       for (let eventIdx = 0; eventIdx < this._groupedEvents[groupIdx].length; ++eventIdx) {
         const event = this._groupedEvents[groupIdx][eventIdx];
-        if (event === point) {
+        if (event.id === point.id) {
           return {
             dayNo: groupIdx,
             itemNo: eventIdx
