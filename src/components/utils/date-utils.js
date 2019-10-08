@@ -45,19 +45,29 @@ export const getDuration = (endDate, startDate) => {
 export const getDurationInMinutes = (endDate, startDate) => {
   const startDateEvent = moment(startDate);
   const endDateEvent = moment(endDate);
-  const timeDifference = moment.duration(endDateEvent.diff(startDateEvent)).asMinutes();
-  return timeDifference;
+  const duration = moment.duration(endDateEvent.diff(startDateEvent)).asMinutes();
+  return Math.abs(duration);
 };
 
 export const getDurationInHours = (endDate, startDate) => {
-  // const durationInMinutes = getDurationInMinutes(endDate, startDate);
-  // const hours = Math.floor(Number(durationInMinutes) / 60);
-  // const minutes = Number(durationInMinutes) % 60;
-  // return hours > 0 ? `${hours} H` : minutes > 0 ? `${minutes} minutes` : ``;
+
   const startDateEvent = moment(startDate);
   const endDateEvent = moment(endDate);
-  const timeDifference = moment.duration(endDateEvent.diff(startDateEvent)).asHours();
-  return timeDifference;
+  const duration = moment.duration(endDateEvent.diff(startDateEvent)).asHours();
+  return Math.abs(duration);
+};
+
+export const getDurationInHoursAndMinutes = (duration) => {
+  const hours = Math.trunc(duration);
+  const minutes = Math.round((duration - hours) * 60);
+  let durationPresentation = ``;
+  if (hours > 0) {
+    durationPresentation = `${hours}H `;
+  }
+  if (minutes > 0) {
+    durationPresentation += `${minutes}M`;
+  }
+  return durationPresentation;
 };
 
 const SHORT_MONTHS = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];

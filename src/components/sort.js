@@ -1,4 +1,4 @@
-import {sortChoice} from "./sort-choice";
+import {SortChoice} from "./dict";
 import {AbstractComponent} from "./abstract-component";
 
 export class Sort extends AbstractComponent {
@@ -12,7 +12,7 @@ export class Sort extends AbstractComponent {
     return `
       <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
           <span class="trip-sort__item  trip-sort__item--day">Day</span>
-          ${Object.values(sortChoice).map((sortType) => `
+          ${Object.values(SortChoice).map((sortType) => `
             <div class="trip-sort__item  trip-sort__item--${sortType.id}">
               <input
                 id="sort-${sortType.id}"

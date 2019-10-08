@@ -1,12 +1,16 @@
 import {getDurationInMinutes} from "../utils/date-utils";
 import {Sort} from "../sort";
-import {sortChoice} from "../sort-choice";
+import {SortChoice} from "../dict";
 
 export class SortController {
   constructor(pointsData, refreshTrip) {
     this._sort = new Sort();
+    this._sortChoice = SortChoice.TIME;
     this._pointsData = pointsData;
     this._refreshTrip = refreshTrip;
+
+    this.getSortFunction = this.getSortFunction.bind(this);
+
     this.init();
   }
 
@@ -18,18 +22,19 @@ export class SortController {
         return;
       }
 
-      switch (label.getAttribute(`for`).substring(`sort-`.length)) {
-        case sortChoice.EVENT.id:
-          this._refreshTrip(this._pointsData.sort((pointA, pointB) => pointA.startDate - pointB.startDate));
-          break;
-        case sortChoice.PRICE.id:
-          this._refreshTrip(this._pointsData.sort((pointA, pointB) => pointB.price - pointA.price));
-          break;
-        case sortChoice.TIME.id:
-          this._refreshTrip(this._pointsData.sort((pointA, pointB) => getDurationInMinutes(pointB.endDate, pointB.startDate) - getDurationInMinutes(pointA.endDate, pointA.startDate)));
-          break;
-      }
-
+      this._sortChoice = label.getAttribute(`for`).substring(`sort-`.length);
+      this._refreshTrip(this._pointsData);
     });
+  }
+
+  getSortFunction() {
+    switch (this._sortChoice) {
+      case SortChoice.PRICE.id:
+        return (pointA, pointB) => pointB.price - pointA.price;
+      case SortChoice.TIME.id:
+        return (pointA, pointB) => getDurationInMinutes(pointB.endDate, pointB.startDate) - getDurationInMinutes(pointA.endDate, pointA.startDate);
+      default:
+        return (pointA, pointB) => pointA.startDate - pointB.startDate;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import {Activities, EventIcons} from "./event-data";
+import {Activities, Events} from "./event-data";
 import {AbstractComponent} from "./abstract-component";
 import {getDuration} from "./utils/date-utils";
 import moment from "moment";
@@ -12,6 +12,7 @@ export class Point extends AbstractComponent {
     this._destination = destination;
     this._price = price;
     this._additionalOptions = additionalOptions;
+    this._MAX_ADD_OPT_SHOWN = 3;
   }
 
   getTemplate() {
@@ -22,11 +23,11 @@ export class Point extends AbstractComponent {
           class="event__type-icon" 
           width="42" 
           height="42" 
-          src="img/icons/${EventIcons[this._type]}" 
+          src="img/icons/${this._type}.png" 
           alt="Event type icon">
       </div>
       <h3 class="event__title">
-           ${this._type} ${Object.values(Activities).includes(this._type) ? ` in ${this._destination.name}` : ` to ${this._destination.name}`}
+           ${Events[this._type.toUpperCase()]} ${Object.values(Activities).includes(this._type) ? ` in ${this._destination.name}` : ` to ${this._destination.name}`}
       </h3>
 
       <div class="event__schedule">
@@ -59,7 +60,7 @@ export class Point extends AbstractComponent {
 
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-      ${this._additionalOptions.map(({title, price}) =>`
+      ${this._additionalOptions.slice(0, this._MAX_ADD_OPT_SHOWN).map(({title, price}) =>`
         <li class="event__offer">
         <span
         class="event__offer-title">
