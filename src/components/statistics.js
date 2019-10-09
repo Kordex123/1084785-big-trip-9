@@ -91,8 +91,7 @@ export default class Statistics extends AbstractComponent {
   }
 
   _drawChart(customOptions) {
-    // eslint-disable-next-line no-new
-    new Chart(customOptions.container, {
+    this._chart = new Chart(customOptions.container, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {

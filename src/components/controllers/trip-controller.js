@@ -29,11 +29,9 @@ export default class TripController {
     this._statisticsController = new StatisticsController(this._tripPageMainSection.parentElement, this._pointsData, this._tripFiltersController);
     this._tripTabsController = new TabsController(this._tripPageMainSection, this._pointsData, this._statisticsController);
     this._subscriptions = [];
-
-    this._init();
   }
 
-  _init() {
+  init() {
     const tripControlsSection = document.querySelector(`.trip-main__trip-controls h2:nth-child(2)`);
     this._tripInfoSection = document.querySelector(`.trip-main__trip-info`);
     this._totalCost = document.querySelector(`.trip-info__cost-value`);
