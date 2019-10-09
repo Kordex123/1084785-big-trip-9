@@ -1,10 +1,9 @@
 import {SortChoice} from "./dict";
-import {AbstractComponent} from "./abstract-component";
+import AbstractComponent from "./abstract-component";
 
-export class Sort extends AbstractComponent {
+export default class Sort extends AbstractComponent {
   constructor(type, hasIcon) {
     super();
-    this._type = type;
     this._hasIcon = hasIcon;
   }
 

@@ -1,17 +1,16 @@
-import {Trip} from "../trip";
+import Trip from "../trip";
+import Info from "../info";
+import ModelPoint from "../api/model-point";
+import TabsController from "./tabs-controller";
+import PointController from "./point-controller";
+import FiltersController from "./filters-controller";
+import SortController from "./sort-controller";
+import StatisticsController from "./statistics-controller";
 import {Position, render} from "../utils/render-utils";
-import {TripInfo} from "../trip-info";
-import {getTotalCost} from "../event-data";
-import {PointController} from "./point-controller";
-import {TripTabsController} from "./trip-tabs-controller";
-import {TripFiltersController} from "./trip-filters-controller";
-import {SortController} from "./sort-controller";
-import {ActionType, PointModes} from "../dict";
+import {ActionType, PointMode} from "../dict";
 import {api} from "../api/api";
-import {ModelPoint} from "../api/model-point";
-import {StatisticsController} from "./statistics-controller";
 
-export class TripController {
+export default class TripController {
   constructor(tripPageMainSection, pointsData, offersDict, destinationDict) {
     this._onDataChange = this._onDataChange.bind(this);
     this._onChangeView = this._onChangeView.bind(this);
@@ -26,36 +25,40 @@ export class TripController {
     this._destinationDict = destinationDict;
     this._pointsData = pointsData;
     this._sortController = new SortController(this._pointsData, this._refreshTrip);
-    this._tripInfo = new TripInfo(this._pointsData);
-    this._tripFiltersController = new TripFiltersController(this._pointsData, this._refreshTrip, this._refreshStats);
+    this._tripFiltersController = new FiltersController(this._pointsData, this._refreshTrip, this._refreshStats);
     this._statisticsController = new StatisticsController(this._tripPageMainSection.parentElement, this._pointsData, this._tripFiltersController);
-    this._tripTabsController = new TripTabsController(this._tripPageMainSection, this._pointsData, this._statisticsController);
+    this._tripTabsController = new TabsController(this._tripPageMainSection, this._pointsData, this._statisticsController);
     this._subscriptions = [];
 
     this._init();
   }
 
   _init() {
-    const tripInfoSection = document.querySelector(`.trip-main__trip-info`);
     const tripControlsSection = document.querySelector(`.trip-main__trip-controls h2:nth-child(2)`);
+    this._tripInfoSection = document.querySelector(`.trip-main__trip-info`);
     this._totalCost = document.querySelector(`.trip-info__cost-value`);
+    this._noPointsMessage = document.querySelector(`.no-points`);
     this._newPointButton = document.querySelector(`.trip-main__event-add-btn`);
     this._newPointButton.addEventListener(`click`, this._handleNewPointClick);
 
-    render(tripInfoSection, this._tripInfo.getElement(), Position.AFTERBEGIN);
+    this._refreshTrip(this._pointsData);
+
     render(tripControlsSection, this._tripTabsController._tripTabs.getElement(), Position.BEFOREBEGIN);
     render(tripControlsSection, this._tripFiltersController._tripFilters.getElement(), Position.AFTEREND);
-
-    this._refreshTrip(this._pointsData);
   }
 
   _handleNewPointClick() {
-    this._tripDaysList = document.querySelector(`.trip-days`);
-    if (this._tripDaysList && !this._newPointButton.disabled) {
+    this._tripDays = document.querySelector(`.trip-days`);
+    if (this._tripDays && !this._newPointButton.disabled) {
       this._subscriptions.forEach((subscription) => subscription());
       this._newPointButton.disabled = true;
-      this._newPoint = this._renderNewPoint();
-      render(this._tripDaysList, this._newPoint.getElement(), Position.BEFOREBEGIN);
+
+      const newPointController = this._renderNewPoint();
+      document.addEventListener(`keydown`, newPointController.onAddEditPointEscape);
+
+      this._newPoint = newPointController._editPoint;
+      render(this._tripDays, this._newPoint.getElement(), Position.BEFOREBEGIN);
+      this._toggleNoPointsMessage(false);
     }
   }
 
@@ -73,14 +76,28 @@ export class TripController {
       oldTripDay.getElement().replaceWith(this._trip.getElement());
       oldTripDay.removeElement();
     } else {
+      this._hideLoader();
       render(this._tripPageMainSection, this._trip.getElement(), Position.AFTEREND);
       render(this._tripPageMainSection, this._sortController._sort.getElement(), Position.AFTEREND);
     }
 
+    this._refreshInfo(this._pointsData);
     this._refreshTotalCost(pointsData);
     this._refreshPoints(points, pointsData);
     this._onChangeView();
     this._tripTabsController.refreshTabs();
+    this._refreshStats(pointsData);
+  }
+
+  _refreshInfo(pointsData) {
+    const oldTripInfo = this._tripInfo;
+    this._tripInfo = new Info(pointsData);
+    if (oldTripInfo) {
+      oldTripInfo.getElement().replaceWith(this._tripInfo.getElement());
+      oldTripInfo.removeElement();
+    } else {
+      render(this._tripInfoSection, this._tripInfo.getElement(), Position.AFTERBEGIN);
+    }
   }
 
   _refreshStats(pointsData) {
@@ -89,10 +106,26 @@ export class TripController {
   }
 
   _refreshTotalCost(pointsData) {
-    this._totalCost.textContent = getTotalCost(pointsData);
+    this._totalCost.textContent = this._getTotalCost(pointsData);
+  }
+
+  _getTotalCost(events) {
+    return events.reduce((total, {price, additionalOptions}) => {
+      total += price;
+      for (let offer of additionalOptions) {
+        total += (offer.price);
+      }
+      return total;
+    }, 0);
+  }
+
+  _toggleNoPointsMessage(isShown) {
+    this._noPointsMessage.style.display = isShown ? `block` : `none`;
   }
 
   _refreshPoints(points, pointsData) {
+    this._toggleNoPointsMessage(!points.length);
+
     points.forEach((newPoint, index) => {
       const pointParent = this._getPointParent(pointsData[index]);
       if (pointParent.hasChildNodes()) {
@@ -125,8 +158,8 @@ export class TripController {
       additionalOptions: []
     };
 
-    const pointController = new PointController(newPointData, this._offersDict, this._destinationDict, this._onDataChange, this._onChangeView, PointModes.ADD);
-    return pointController._editPoint;
+    const pointController = new PointController(newPointData, this._offersDict, this._destinationDict, this._onDataChange, this._onChangeView, PointMode.ADD);
+    return pointController;
   }
 
   _getPointParent(pointData) {
@@ -140,6 +173,7 @@ export class TripController {
   _onChangeView() {
     this._newPointButton.disabled = false;
     this._removeNewPoint();
+    this._toggleNoPointsMessage(!this._pointsData.length);
     this._subscriptions.forEach((subscription) => subscription());
   }
 
@@ -153,13 +187,19 @@ export class TripController {
     oldNewPointElement = null;
   }
 
-  _onDataChange(actionType, pointData) {
+  _hideLoader() {
+    const loader = document.querySelector(`.trip-loading`);
+    loader.style.display = `none`;
+  }
 
+  _onDataChange(actionType, pointData, options) {
     switch (actionType) {
       case ActionType.CREATE:
         api.createPoint({
           point: ModelPoint.toRAW(pointData),
-        }).then(() => api.getAllPoints())
+          options
+        })
+          .then(() => api.getAllPoints())
           .then((points) => {
             this._pointsData = points;
             this._refreshTrip(this._pointsData);
@@ -169,6 +209,7 @@ export class TripController {
         api.updatePoint({
           id: pointData.id,
           point: ModelPoint.toRAW(pointData),
+          options
         }).then(() => api.getAllPoints())
           .then((points) => {
             this._pointsData = points;
@@ -177,7 +218,8 @@ export class TripController {
         break;
       case ActionType.DELETE:
         api.deletePoint({
-          id: pointData.id
+          id: pointData.id,
+          options
         }).then(() => api.getAllPoints())
           .then((points) => {
             this._pointsData = points;

@@ -1,7 +1,7 @@
-import {Statistics} from "../statistics";
+import Statistics from "../statistics";
 import {Position, render} from "../utils/render-utils";
 
-export class StatisticsController {
+export default class StatisticsController {
   constructor(container, pointsData, tripFiltersController) {
     this._container = container;
     this._tripFiltersController = tripFiltersController;

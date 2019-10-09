@@ -1,14 +1,14 @@
-import {TripFilters} from "../trip-filters";
-import {TimelineFilters} from "../dict";
+import Filters from "../filters";
+import {TimelineFilter} from "../dict";
 import moment from "moment";
 
-export class TripFiltersController {
+export default class FiltersController {
   constructor(pointsData, refreshTrip, refreshStats) {
-    this._tripFilters = new TripFilters();
+    this._tripFilters = new Filters();
     this._pointsData = pointsData;
     this._refreshTrip = refreshTrip;
     this._refreshStats = refreshStats;
-    this._filterOption = TimelineFilters.EVERYTHING.id;
+    this._filterOption = TimelineFilter.EVERYTHING.id;
 
     this.getFilterFunction = this.getFilterFunction.bind(this);
 
@@ -33,9 +33,9 @@ export class TripFiltersController {
   getFilterFunction() {
     const now = moment().toDate();
     switch (this._filterOption) {
-      case TimelineFilters.PAST.id:
+      case TimelineFilter.PAST.id:
         return (point) => point.endDate < now;
-      case TimelineFilters.FUTURE.id:
+      case TimelineFilter.FUTURE.id:
         return (point) => point.startDate > now;
       default:
         return () => true;

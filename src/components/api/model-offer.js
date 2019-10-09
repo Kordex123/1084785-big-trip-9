@@ -1,25 +1,25 @@
-export class ModelOffer {
-  constructor(data) {
-    this.title = data[`title`];
-    this.price = data[`price`];
+export default class ModelOffer {
+  constructor(offer) {
+    this.title = offer[`title`];
+    this.price = offer[`price`];
   }
 
-  static parseOffer(data) {
-    return new ModelOffer(data);
+  static parseOffer(offer) {
+    return new ModelOffer(offer);
   }
 
-  static parseOffers(data) {
-    return data.map(ModelOffer.parseOffer);
+  static parseOffers(offer) {
+    return offer.map(ModelOffer.parseOffer);
   }
 
-  static toRAW(offerData) {
+  static toRAW(offerModel) {
     return {
-      'title': offerData.title,
-      'price': offerData.price,
+      'title': offerModel.title,
+      'price': offerModel.price,
     };
   }
 
-  static toRAWs(offerDataList) {
-    return offerDataList.map(ModelOffer.toRAW);
+  static toRAWs(offerModelList) {
+    return offerModelList.map(ModelOffer.toRAW);
   }
 }

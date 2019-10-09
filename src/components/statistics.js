@@ -1,11 +1,11 @@
-import {AbstractComponent} from "./abstract-component";
-import {Transfers} from "./event-data";
+import AbstractComponent from "./abstract-component";
+import {Transfers} from "./point-data";
 import {getDurationInHours, getDurationInHoursAndMinutes} from "./utils/date-utils";
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
 
-export class Statistics extends AbstractComponent {
+export default class Statistics extends AbstractComponent {
   constructor(pointsData) {
     super();
     this._pointsData = pointsData;
@@ -110,6 +110,7 @@ export class Statistics extends AbstractComponent {
             anchor: `end`,
             align: `start`,
             formatter: customOptions.formatter,
+            fontColor: `#000000`
           },
         },
         scales: {

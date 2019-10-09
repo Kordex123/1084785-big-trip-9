@@ -1,28 +1,16 @@
-import {ModelOffer} from "./model-offer";
+import ModelOffer from "./model-offer";
 
-export class ModelOffers {
-  constructor(data) {
-    this.type = data[`type`];
-    // this.offers = data[`offers`].map(ModelOffer.parseOffer);
-    this.offers = ModelOffer.parseOffers(data[`offers`]);
+export default class ModelOffers {
+  constructor(offers) {
+    this.type = offers[`type`];
+    this.offers = ModelOffer.parseOffers(offers[`offers`]);
   }
 
-  static parseOffer(data) {
-    return new ModelOffers(data);
+  static parseOffer(offers) {
+    return new ModelOffers(offers);
   }
 
-  static parseOffers(data) {
-    return data.map(ModelOffers.parseOffer);
-  }
-
-  static toRAW(offersData) {
-    return {
-      'type': offersData.type,
-      'offers': ModelOffer.toRAWs(offersData.offers),
-    };
-  }
-
-  static toRAWs(offersDataList) {
-    return offersDataList.map(ModelOffers.toRAW);
+  static parseOffers(offers) {
+    return offers.map(ModelOffers.parseOffer);
   }
 }

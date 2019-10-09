@@ -1,9 +1,9 @@
-import {Activities, Events} from "./event-data";
-import {AbstractComponent} from "./abstract-component";
+import AbstractComponent from "./abstract-component";
+import {Activities, Events} from "./point-data";
 import {getDuration} from "./utils/date-utils";
 import moment from "moment";
 
-export class Point extends AbstractComponent {
+export default class Point extends AbstractComponent {
   constructor({startDate, endDate, type, destination, price, additionalOptions}) {
     super();
     this._startDate = startDate;

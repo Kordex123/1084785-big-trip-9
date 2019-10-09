@@ -1,12 +1,12 @@
-import {TimelineFilters} from "./dict";
-import {AbstractComponent} from "./abstract-component";
+import AbstractComponent from "./abstract-component";
+import {TimelineFilter} from "./dict";
 
-export class TripFilters extends AbstractComponent {
+export default class Filters extends AbstractComponent {
 
   getTemplate() {
     return `
     <form class="trip-filters" action="#" method="get">
-        ${Object.values(TimelineFilters).map((filter) => `
+        ${Object.values(TimelineFilter).map((filter) => `
           <div class="trip-filters__filter">
               <input 
                   id="filter-${filter.id}" 

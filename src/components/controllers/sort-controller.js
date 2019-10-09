@@ -1,8 +1,9 @@
-import {getDurationInMinutes} from "../utils/date-utils";
-import {Sort} from "../sort";
+import Sort from "../sort";
 import {SortChoice} from "../dict";
+import {getDurationInMinutes} from "../utils/date-utils";
 
-export class SortController {
+
+export default class SortController {
   constructor(pointsData, refreshTrip) {
     this._sort = new Sort();
     this._sortChoice = SortChoice.TIME;

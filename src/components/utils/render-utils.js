@@ -5,11 +5,6 @@ export const Position = {
   BEFOREBEGIN: `beforebegin`,
 };
 
-export const Key = {
-  ESCAPE_IE: `Escape`,
-  ESCAPE: `Esc`,
-};
-
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
@@ -29,16 +24,5 @@ export const render = (container, element, place) => {
       break;
     case Position.BEFOREBEGIN:
       container.before(element);
-  }
-};
-
-export const replaceValues = (arrayRef, values) => {
-  arrayRef.length = 0;
-  values.forEach((value) => arrayRef.push(value));
-};
-
-export const unrender = (element) => {
-  if (element) {
-    element.remove();
   }
 };

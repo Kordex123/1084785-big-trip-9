@@ -1,7 +1,7 @@
-import {AbstractComponent} from "./abstract-component";
+import AbstractComponent from "./abstract-component";
 import moment from "moment";
 
-export class TripInfo extends AbstractComponent {
+export default class Info extends AbstractComponent {
   constructor(pointsData) {
     super();
     this._pointsData = pointsData.sort((pointA, pointB) => pointA.startDate - pointB.startDate);

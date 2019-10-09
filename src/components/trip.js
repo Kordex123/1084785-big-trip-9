@@ -1,12 +1,12 @@
-import {AbstractComponent} from "./abstract-component";
+import AbstractComponent from "./abstract-component";
 import {getDayMillis, getDayToCounter} from "./utils/date-utils";
 import moment from "moment";
 
-export class Trip extends AbstractComponent {
+export default class Trip extends AbstractComponent {
   constructor(pointsData, unfilteredPointsData) {
     super();
     this._dayToCounter = getDayToCounter(unfilteredPointsData);
-    this._groupedEvents = unfilteredPointsData.reduce((allGroups, event) => {
+    this._groupedPoints = unfilteredPointsData.reduce((allGroups, event) => {
       if (pointsData.every(({id}) => id !== event.id)) {
         return allGroups;
       }
@@ -20,15 +20,12 @@ export class Trip extends AbstractComponent {
       }
       return allGroups;
     }, []);
-    // this._groupedEvents = this._groupedEvents.map((groupedEvent) => groupedEvent.filter((event) => {
-    //   return pointsData.includes(event);
-    // }));
   }
 
   getPointPosition(point) {
-    for (let groupIdx = 0; groupIdx < this._groupedEvents.length; ++groupIdx) {
-      for (let eventIdx = 0; eventIdx < this._groupedEvents[groupIdx].length; ++eventIdx) {
-        const event = this._groupedEvents[groupIdx][eventIdx];
+    for (let groupIdx = 0; groupIdx < this._groupedPoints.length; ++groupIdx) {
+      for (let eventIdx = 0; eventIdx < this._groupedPoints[groupIdx].length; ++eventIdx) {
+        const event = this._groupedPoints[groupIdx][eventIdx];
         if (event.id === point.id) {
           return {
             dayNo: groupIdx,
@@ -46,7 +43,7 @@ export class Trip extends AbstractComponent {
   getTemplate() {
     return `
       <ul class="trip-days">
-        ${this._groupedEvents.map((eventGroup) => `<li class="trip-days__item  day">
+        ${this._groupedPoints.map((eventGroup) => `<li class="trip-days__item  day">
             <div class="day__info">
               <span class="day__counter">${this._dayToCounter[getDayMillis(eventGroup[0].startDate)]}</span>
               <time 

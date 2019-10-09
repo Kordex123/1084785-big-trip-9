@@ -1,37 +1,36 @@
-import {ModelDestination} from "./model-destination";
-import {ModelOffer} from "./model-offer";
+import ModelDestination from "./model-destination";
+import ModelOffer from "./model-offer";
 
-export class ModelPoint {
-  constructor(data) {
-    this.id = data[`id`];
-    this.startDate = new Date(data[`date_from`]);
-    this.endDate = new Date(data[`date_to`]);
-    this.type = data[`type`];
-    this.destination = ModelDestination.parseDestination(data[`destination`]);
-    this.price = data[`base_price`];
-    this.isFavorite = Boolean(data[`is_favorite`]);
-    // this.additionalOptions = data[`offers`].map((offer) => new ModelOffer(offer));
-    this.additionalOptions = ModelOffer.parseOffers(data[`offers`]);
+export default class ModelPoint {
+  constructor(point) {
+    this.id = point[`id`];
+    this.startDate = new Date(point[`date_from`]);
+    this.endDate = new Date(point[`date_to`]);
+    this.type = point[`type`];
+    this.destination = ModelDestination.parseDestination(point[`destination`]);
+    this.price = point[`base_price`];
+    this.isFavorite = Boolean(point[`is_favorite`]);
+    this.additionalOptions = ModelOffer.parseOffers(point[`offers`]);
   }
 
-  static parsePoint(data) {
-    return new ModelPoint(data);
+  static parsePoint(point) {
+    return new ModelPoint(point);
   }
 
-  static parsePoints(data) {
-    return [].concat(data).map(ModelPoint.parsePoint);
+  static parsePoints(point) {
+    return [].concat(point).map(ModelPoint.parsePoint);
   }
 
-  static toRAW(pointData) {
+  static toRAW(modelPoint) {
     return {
-      'date_from': pointData.startDate,
-      'date_to': pointData.endDate,
-      'type': pointData.type,
-      'destination': pointData.destination,
-      'base_price': pointData.price,
-      'offers': ModelOffer.toRAWs(pointData.additionalOptions),
-      'id': pointData.id,
-      'is_favorite': pointData.isFavorite || false,
+      'date_from': modelPoint.startDate,
+      'date_to': modelPoint.endDate,
+      'type': modelPoint.type,
+      'destination': modelPoint.destination,
+      'base_price': modelPoint.price,
+      'offers': ModelOffer.toRAWs(modelPoint.additionalOptions),
+      'id': modelPoint.id,
+      'is_favorite': modelPoint.isFavorite || false,
     };
   }
 }

@@ -1,25 +1,17 @@
-import {ModelPicture} from "./model-picture";
+import ModelPicture from "./model-picture";
 
-export class ModelDestination {
-  constructor(data) {
-    this.name = data[`name`];
-    this.description = data[`description`];
-    this.pictures = ModelPicture.parsePictures(data[`pictures`]);
+export default class ModelDestination {
+  constructor(destination) {
+    this.name = destination[`name`];
+    this.description = destination[`description`];
+    this.pictures = ModelPicture.parsePictures(destination[`pictures`]);
   }
 
-  static parseDestination(data) {
-    return new ModelDestination(data);
+  static parseDestination(destination) {
+    return new ModelDestination(destination);
   }
 
-  static parseDestinations(data) {
-    return data.map(ModelDestination.parseDestination);
-  }
-
-  static toRAW(description) {
-    return {
-      'name': description.name,
-      'description': description.description,
-      'pictures': ModelPicture.toRAWs(description.pictures)
-    };
+  static parseDestinations(destination) {
+    return destination.map(ModelDestination.parseDestination);
   }
 }

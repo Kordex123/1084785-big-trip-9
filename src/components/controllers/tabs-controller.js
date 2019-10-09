@@ -1,16 +1,16 @@
-import {TripTabs} from "../trip-tabs";
-import {ResultPresentations} from "../dict";
+import Tabs from "../tabs";
+import {ResultPresentation} from "../dict";
 
-export class TripTabsController {
+export default class TabsController {
   constructor(tripPageMainSection, pointsData, statisticsController) {
-    this._tripTabs = new TripTabs();
+    this._tripTabs = new Tabs();
     this._tripPageMainSection = tripPageMainSection;
     this._statisticsController = statisticsController;
     this.init();
 
     this.refreshTabs = this.refreshTabs.bind(this);
 
-    this._tabChoice = ResultPresentations.TABLE;
+    this._tabChoice = ResultPresentation.TABLE;
     this.refreshTabs();
   }
 
@@ -26,11 +26,11 @@ export class TripTabsController {
 
   refreshTabs() {
     switch (this._tabChoice) {
-      case ResultPresentations.TABLE:
+      case ResultPresentation.TABLE:
         this._statisticsController.hideStats();
         this._showTrip();
         break;
-      case ResultPresentations.STATS:
+      case ResultPresentation.STATS:
         this._hideTrip();
         this._statisticsController.showStats();
         break;

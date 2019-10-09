@@ -1,9 +1,9 @@
-export const ResultPresentations = {
+export const ResultPresentation = {
   TABLE: `Table`,
   STATS: `Stats`
 };
 
-export const TimelineFilters = {
+export const TimelineFilter = {
   EVERYTHING: {id: `everything`, name: `Everything`},
   FUTURE: {id: `future`, name: `Future`},
   PAST: {id: `past`, name: `Past`},
@@ -15,7 +15,7 @@ export const SortChoice = {
   PRICE: {id: `price`, name: `Price`, hasIcon: true},
 };
 
-export const PointModes = {
+export const PointMode = {
   ADD: `add`,
   EDIT: `edit`,
 };
